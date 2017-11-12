@@ -16,9 +16,9 @@ public class Listing {
 	private int[] manpower;
 	private int[] maxChairs;
 	
-	public void run() {
+	public int[][] run() {
 		setUp();
-		model();
+		return model();
 	}
 	
 	private void setUp() {
@@ -44,7 +44,7 @@ public class Listing {
 		assert (numChairs.length == NUM_SLOTS);
 	}
 	
-	private void model() {
+	private int[][] model() {
 		try {
 			IloCplex cplex = new IloCplex();
 		
@@ -162,19 +162,57 @@ public class Listing {
 				System.out.println(cplex.getValue(totalTreatments));
 				for (int j = 0; j < NUM_TREATMENTS; j++)
 					System.out.print(cplex.getValue(subTotalTreatments[j]) + " ");
+				System.out.println();
 			}
+			
+		// ** Setting up return variable **
+			int[][] result = new int[NUM_SLOTS][NUM_TREATMENTS];
+			for (int i = 0; i < NUM_SLOTS; i++) {
+				for (int j = 0; j < NUM_TREATMENTS; j++) {
+					int num = (int) cplex.getValue(x[i][j]);
+					result[i][j] = num;
+				}
+			}
+			
+			return result;
+			
 		} catch (IloException e) {
 			e.printStackTrace();
 		}
+		return null;
+	}
+	
+	public int[][] allocateChairs(int[][] result) {
+		int[][] finalAllocation = new int[NUM_SLOTS][NUM_CHAIRS];
+		int[][] allocation = new int[NUM_SLOTS][NUM_CHAIRS];
+		for (int i = 0; i < NUM_SLOTS; i++) {
+			for (int j = 0; j < NUM_TREATMENTS; j++) {
+				int count = 0;
+				int chairNum = 0;
+				while (count < result[i][j] && chairNum < NUM_CHAIRS) {
+					if (allocation[i][chairNum] == 0) {
+						allocation[i][chairNum] = j+1;
+						count++;
+						for (int k = 1; k < treatmentLength[j]; k++) {
+							allocation[i+k][chairNum] = -1;
+						}
+					}
+					chairNum++;
+				}
+			}
+		}
+		int num = 0;
+		for (int j = 0; j < NUM_CHAIRS; j++) {
+			// System.out.println("Chair " + j);
+			for (int i = 0; i < NUM_SLOTS; i++) {
+				if (allocation[i][j] > -1)
+					num = allocation[i][j];
+				// System.out.print(num + " ");
+				finalAllocation[i][j] = num;
+			}
+			// System.out.println();
+		}
+		
+		return finalAllocation;
 	}
 }
-
-// Treatments must be continuous	(MIGHT NOT BE NECESSARY SINCE xsum ABOVE IS LIMITED TO NUM_CHAIRS)
-//for (int j = 0; j < NUM_TREATMENTS; j++) {
-//	IloIntExpr xsum = cplex.intVar(0, NUM_CHAIRS);
-//	for (int i = 0; i <= (NUM_SLOTS - treatmentLength[j]); i++) {
-//		for (int q = 0; q < treatmentLength[j]; q++)
-//			xsum = cplex.sum(xsum, x[q][j]);
-//		cplex.addLe(xsum, (NUM_CHAIRS + 1));
-//	}
-//}
