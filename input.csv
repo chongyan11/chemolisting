@@ -1,0 +1,9 @@
+Number of Treatments,5,,,,,,,,,,,,,,,,,,,,,,
+Length of Each Treatment (in Terms of Time Slots),12,8,5,2,1,,,,,,,,,,,,,,,,,,
+Ratio of Each Treatment (Sum to 1.00),0.125,0.25,0.25,0.125,0.25,,,,,,,,,,,,,,,,,,
+Allowable Error in Ratio,0,,,,,,,,,,,,,,,,,,,,,,
+Number of Chairs,44,,,,,,,,,,,,,,,,,,,,,,
+Max Cases per Nurse,3,,,,,,,,,,,,,,,,,,,,,,
+Number of Time Slots,23,,,,,,,,,,,,,,,,,,,,,,
+Manpower at each Time Slot,10,15,15,15,15,18,13,13,13,13,13,13,15,15,18,18,18,18,8,3,3,3,3
+Number of Chairs operating at each Time Slot,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,22,11,11,11

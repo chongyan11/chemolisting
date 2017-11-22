@@ -5,43 +5,58 @@ import ilog.cplex.*;
 
 public class Listing {
 // Temporary data declarations
-	private final int NUM_TREATMENTS = 5;
-	private final int NUM_SLOTS = 23;
-	private final int NUM_CHAIRS = 44;
-	private final int MANPOWER_FACTOR = 4;
-	private final double ALPHA = 0.02;
+	private int NUM_TREATMENTS;
+	private int NUM_SLOTS;
+	private int NUM_CHAIRS;
+	private double MANPOWER_FACTOR;
+	private double ALPHA;
 	
 	private int[] treatmentLength;
 	private double[] treatmentRatio;
 	private int[] manpower;
 	private int[] maxChairs;
 	
-	public int[][] run() {
+	public int[][] run() throws ListingException {
 		setUp();
 		return model();
 	}
 	
-	private void setUp() {
+	private void setUp() throws ListingException {
 	// TODO: add file reading
-		int[] treatmentLength = {12, 8, 5, 2, 1};
-		this.treatmentLength = treatmentLength;
-		assert (treatmentLength.length == NUM_TREATMENTS);
+		InputOutput.readInputFile();
 		
-		double[] treatmentRatio = {0.125, 0.25, 0.25, 0.125, 0.25};
+		NUM_TREATMENTS = InputOutput.getNumTreatments();
+		NUM_SLOTS = InputOutput.getNumSlots();
+		NUM_CHAIRS = InputOutput.getMaxChairs();
+		MANPOWER_FACTOR = InputOutput.getMaxNurseRatio();
+		ALPHA = InputOutput.getAlpha();
+		
+		int[] treatmentLength = InputOutput.getTreatmentLengths();
+		this.treatmentLength = treatmentLength;
+		if (!(treatmentLength.length == NUM_TREATMENTS))
+			throw new ListingException("Number of treatments do not match (1)");
+		
+		double[] treatmentRatio = InputOutput.getTreatmentRatios();
 		this.treatmentRatio = treatmentRatio;
-		assert (treatmentRatio.length == NUM_TREATMENTS);
+		if (!(treatmentRatio.length == NUM_TREATMENTS))
+			throw new ListingException("Number of treatments do not match (2)");
 		double sum = 0;
 		for (int i = 0; i < treatmentRatio.length; i++)
 			sum += treatmentRatio[i];
-		assert (sum == 1.0);
+		if (sum > 1.0)
+			throw new ListingException("Sum of ratios exceed 1");
+		else if (sum < 1.0)
+			throw new ListingException("Sum of ratios below 1");
 		
-		int[] manpower = {10, 15, 15, 15, 15, 18, 13, 13, 13, 13, 13, 13, 15, 15, 18, 18, 18, 18, 8, 3, 3, 3, 3};
+		int[] manpower = InputOutput.getManpower();
 		this.manpower = manpower;
-		assert (manpower.length == NUM_SLOTS);
+		if (!(manpower.length == NUM_SLOTS)) 
+			throw new ListingException("Number of slots do not match (1)");
 		
-		int[] numChairs = {44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 22, 11, 11, 11};
+		int[] numChairs = InputOutput.getChairs();
 		this.maxChairs = numChairs;
-		assert (numChairs.length == NUM_SLOTS);
+		if (!(numChairs.length == NUM_SLOTS))
+			throw new ListingException("Number of slots do not match (2)");
 	}
 	
 	private int[][] model() {
