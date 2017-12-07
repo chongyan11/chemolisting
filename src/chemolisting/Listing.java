@@ -4,7 +4,6 @@ import ilog.concert.*;
 import ilog.cplex.*;
 
 public class Listing {
-// Temporary data declarations
 	private int NUM_TREATMENTS;
 	private int NUM_SLOTS;
 	private int NUM_CHAIRS;
@@ -16,8 +15,15 @@ public class Listing {
 	private int[] manpower;
 	private int[] maxChairs;
 	
+	private int[] prevBookings;
+	private int[] prevNoShows;
+	private int[] prevCancellations;
+	private double NOSHOWFACTOR;
+	private double CANCELLATIONFACTOR;
+	
 	public int[][] run() throws ListingException {
 		setUp();
+		adjustTreatmentRatios();
 		return model();
 	}
 	
@@ -30,14 +36,14 @@ public class Listing {
 		NUM_CHAIRS = InputOutput.getMaxChairs();
 		MANPOWER_FACTOR = InputOutput.getMaxNurseRatio();
 		ALPHA = InputOutput.getAlpha();
+		NOSHOWFACTOR = InputOutput.getNoShowFactor();
+		CANCELLATIONFACTOR = InputOutput.getCancellationFactor();
 		
-		int[] treatmentLength = InputOutput.getTreatmentLengths();
-		this.treatmentLength = treatmentLength;
+		treatmentLength = InputOutput.getTreatmentLengths();
 		if (!(treatmentLength.length == NUM_TREATMENTS))
 			throw new ListingException("Number of treatments do not match (1)");
 		
-		double[] treatmentRatio = InputOutput.getTreatmentRatios();
-		this.treatmentRatio = treatmentRatio;
+		treatmentRatio = InputOutput.getTreatmentRatios();
 		if (!(treatmentRatio.length == NUM_TREATMENTS))
 			throw new ListingException("Number of treatments do not match (2)");
 		double sum = 0;
@@ -48,15 +54,26 @@ public class Listing {
 		else if (sum < 1.0)
 			throw new ListingException("Sum of ratios below 1");
 		
-		int[] manpower = InputOutput.getManpower();
-		this.manpower = manpower;
+		manpower = InputOutput.getManpower();
 		if (!(manpower.length == NUM_SLOTS)) 
 			throw new ListingException("Number of slots do not match (1)");
 		
-		int[] numChairs = InputOutput.getChairs();
-		this.maxChairs = numChairs;
-		if (!(numChairs.length == NUM_SLOTS))
+		maxChairs = InputOutput.getChairs();
+		if (!(maxChairs.length == NUM_SLOTS))
 			throw new ListingException("Number of slots do not match (2)");
+		
+		prevBookings = InputOutput.getPrevBookings();
+		if (!(prevBookings.length == NUM_TREATMENTS))
+			throw new ListingException("Number of treatments do not match (3)");
+		
+		prevNoShows = InputOutput.getPrevNoShows();
+		if (!(prevNoShows.length == NUM_TREATMENTS))
+			throw new ListingException("Number of treatments do not match (4)");
+		
+		prevCancellations = InputOutput.getPrevCancellations();
+		if (!(prevCancellations.length == NUM_TREATMENTS))
+			throw new ListingException("Number of treatments do not match (5)");
+		
 	}
 	
 	private int[][] model() {
@@ -229,5 +246,22 @@ public class Listing {
 		}
 		
 		return finalAllocation;
+	}
+	
+	private void adjustTreatmentRatios() {
+		double[] reductionFactor = new double[NUM_TREATMENTS];
+		double[] ratios = new double[NUM_TREATMENTS];
+		for (int i = 0; i < NUM_TREATMENTS; i++) {
+			reductionFactor[i] = ((NOSHOWFACTOR * prevNoShows[i]) + (CANCELLATIONFACTOR * prevCancellations[i])) / prevBookings[i];
+			ratios[i] = treatmentRatio[i] * (1 + reductionFactor[i]);
+		}
+		double sum = 0.0;
+		for (int i = 0; i < NUM_TREATMENTS; i++)
+			sum += ratios[i];
+		for (int i = 0; i < NUM_TREATMENTS; i++) {
+			ratios[i] = ratios[i] / sum;
+			System.out.println(ratios[i]);
+		}
+		treatmentRatio = ratios;
 	}
 }
