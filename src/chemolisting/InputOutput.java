@@ -2,11 +2,15 @@ package chemolisting;
 
 import java.io.*;
 import java.util.ArrayList;
+import com.jacob.com.*;
+import com.jacob.activeX.*;
 
 public class InputOutput {
 	
 	private static final String OUTPUT_FILE_NAME = "output.csv";
 	private static final String INPUT_FILE_NAME = "input.csv";
+	private static final String MACRO_FILE_NAME = "listing.xlsm";
+	private static final String MACRO_NAME = "Sheet1.Test";
 	private static final String NEWLINE = "\n";
 	private static final String SEPARATOR = ",";
 	
@@ -39,6 +43,38 @@ public class InputOutput {
 			pw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static void executeMacro() {
+		File file = new File(MACRO_FILE_NAME);
+		callExcelMacro(file, MACRO_NAME);
+	}
+	
+	private static void callExcelMacro(File file, String macroName) {
+		ComThread.InitSTA();
+		final ActiveXComponent excel = new ActiveXComponent("Excel.Application");
+		try {
+			// Opens Excel if property is set to true
+			excel.setProperty("Visible", new Variant(true));
+			final Dispatch workbooks = excel.getProperty("Workbooks").toDispatch();
+			final Dispatch workBook = Dispatch.call(workbooks, "Open", file.getAbsolutePath()).toDispatch();
+			
+			// Calls the macro
+			final Variant result = Dispatch.call(excel, "Run", new Variant(macroName));
+			
+			// Saves file
+			Dispatch.call(workBook, "Save");
+			
+			// Closes the excel file
+			com.jacob.com.Variant f = new com.jacob.com.Variant(true);
+			Dispatch.call(workBook, "Close", f);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			// Closes Microsoft Excel itself
+			excel.invoke("Quit", new Variant[0]);
+			ComThread.Release();
 		}
 	}
 	
