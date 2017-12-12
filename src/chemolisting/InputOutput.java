@@ -10,7 +10,7 @@ public class InputOutput {
 	private static final String OUTPUT_FILE_NAME = "output.csv";
 	private static final String INPUT_FILE_NAME = "input.csv";
 	private static final String MACRO_FILE_NAME = "listing.xlsm";
-	private static final String MACRO_NAME = "Sheet1.Test";
+	private static final String MACRO_NAME = "Sheet1.Main";
 	private static final String NEWLINE = "\n";
 	private static final String SEPARATOR = ",";
 	
@@ -29,16 +29,31 @@ public class InputOutput {
 	private static double noShowFactor;
 	private static double cancellationFactor;
 	
-	public static void writeResults(int[][] allocation) { 
+	public static void writeResults(int[][] allocation, int[] subtotal) { 
 		try {
 			FileWriter fw = new FileWriter(OUTPUT_FILE_NAME);
 			PrintWriter pw = new PrintWriter(fw);
-			// print in chair rows and slot columns 
+			// print out number of chairs and number of slots
+			pw.print(allocation[0].length + SEPARATOR + allocation.length + SEPARATOR);
+			pw.println();
+			// print out number of treatments
+			pw.println(numTreatments);
+			// print out treatment lengths
+			for (int i = 0; i < numTreatments; i++) {
+				pw.print(lengthTreatments.get(i) + SEPARATOR);
+			}
+			pw.println();
+			// print out subtotal number of treatments
+			for (int i = 0; i < numTreatments; i++) {
+				pw.print(subtotal[i] + SEPARATOR);
+			}
+			pw.println();
+			// print in chair rows and slot columns
 			for (int j = 0; j < allocation[0].length; j++) {
 				for (int i = 0; i < allocation.length; i++) {
 					pw.print(allocation[i][j] + SEPARATOR);
 				}
-				pw.print(NEWLINE);
+				pw.println();
 			}
 			pw.close();
 		} catch (IOException e) {

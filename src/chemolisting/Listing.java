@@ -21,6 +21,8 @@ public class Listing {
 	private double NOSHOWFACTOR;
 	private double CANCELLATIONFACTOR;
 	
+	private int[] subtotal;
+	
 	public int[][] run() throws ListingException {
 		setUp();
 		adjustTreatmentRatios();
@@ -166,7 +168,7 @@ public class Listing {
 				IloLinearIntExpr sumChairs = cplex.linearIntExpr();
 				for (int j = 0; j < NUM_TREATMENTS; j++)
 					sumChairs.addTerm(1, y[i][j]);
-				cplex.addLe(sumChairs, (maxChairs[i] + 1));
+				cplex.addLe(sumChairs, (maxChairs[i]));
 				cplex.addLe(sumChairs, (MANPOWER_FACTOR * manpower[i]));
 				
 				IloLinearIntExpr sumStarts = cplex.linearIntExpr();
@@ -178,16 +180,16 @@ public class Listing {
 		// ** Solving and printing **
 			if (cplex.solve()) {
 				System.out.println(cplex.getObjValue());
-				for (int i = 0; i < NUM_SLOTS; i++) {
-					for (int j = 0; j < NUM_TREATMENTS; j++) {
-						System.out.print(cplex.getValue(x[i][j]) + " ");
+				for (int j = 0; j < NUM_TREATMENTS; j++) {
+					for (int i = 0; i < NUM_SLOTS; i++) {
+						System.out.print(cplex.getValue(x[i][j]) + "  ");
 					}
 					System.out.println();
 				}
 				System.out.println();
-				for (int i = 0; i < NUM_SLOTS; i++) {
-					for (int j = 0; j < NUM_TREATMENTS; j++) {
-						System.out.print(cplex.getValue(y[i][j]) + " ");
+				for (int j = 0; j < NUM_TREATMENTS; j++) {
+					for (int i = 0; i < NUM_SLOTS; i++) {
+						System.out.print(cplex.getValue(y[i][j]) + "  ");
 					}
 					System.out.println();
 				}
@@ -196,6 +198,11 @@ public class Listing {
 					System.out.print(cplex.getValue(subTotalTreatments[j]) + " ");
 				System.out.println();
 			}
+			
+		// ** Constructing subtotal variable **
+			subtotal = new int[NUM_TREATMENTS];
+			for (int i = 0; i < NUM_TREATMENTS; i++)
+				subtotal[i] = (int) cplex.getValue(subTotalTreatments[i]);
 			
 		// ** Setting up return variable **
 			int[][] result = new int[NUM_SLOTS][NUM_TREATMENTS];
@@ -263,5 +270,9 @@ public class Listing {
 			System.out.println(ratios[i]);
 		}
 		treatmentRatio = ratios;
+	}
+	
+	public int[] getSubtotal() {
+		return subtotal;
 	}
 }
