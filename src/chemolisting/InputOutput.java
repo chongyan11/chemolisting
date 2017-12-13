@@ -82,13 +82,13 @@ public class InputOutput {
 			Dispatch.call(workBook, "Save");
 			
 			// Closes the excel file
-			com.jacob.com.Variant f = new com.jacob.com.Variant(true);
-			Dispatch.call(workBook, "Close", f);
+			// com.jacob.com.Variant f = new com.jacob.com.Variant(true);
+			// Dispatch.call(workBook, "Close", f);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			// Closes Microsoft Excel itself
-			excel.invoke("Quit", new Variant[0]);
+			// excel.invoke("Quit", new Variant[0]);
 			ComThread.Release();
 		}
 	}
