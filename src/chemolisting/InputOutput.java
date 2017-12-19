@@ -24,10 +24,8 @@ public class InputOutput {
 	private static ArrayList<Integer> manpower = new ArrayList<Integer>();
 	private static ArrayList<Integer> chairs = new ArrayList<Integer>();
 	private static ArrayList<Integer> noShow = new ArrayList<Integer>();
-	private static ArrayList<Integer> cancellations = new ArrayList<Integer>();
 	private static ArrayList<Integer> prevBookings = new ArrayList<Integer>();
 	private static double noShowFactor;
-	private static double cancellationFactor;
 	
 	public static void writeResults(int[][] allocation, int[] subtotal) { 
 		try {
@@ -174,23 +172,10 @@ public class InputOutput {
 				noShow.add(x);
 			}
 			
-			// HARDCODE: Twelfth readline for number of cancellations last month
-			line = br.readLine();
-			string = line.split(SEPARATOR);
-			for (int i = 1; i < string.length; i++) {
-				int x = Integer.parseInt(string[i]);
-				cancellations.add(x);
-			}
-			
-			// HARDCODE: Thirteenth readline for no show factor
+			// HARDCODE: Twelfth readline for no show factor
 			line = br.readLine();
 			string = line.split(SEPARATOR, 3);
 			noShowFactor = Double.parseDouble(string[1]);
-			
-			// HARDCODE: Fourteenth readline for cancellation factor
-			line = br.readLine();
-			string = line.split(SEPARATOR, 3);
-			cancellationFactor = Double.parseDouble(string[1]);
 			
 			br.close();
 		} catch (IOException e) {
@@ -266,19 +251,7 @@ public class InputOutput {
 		return ns;
 	}
 	
-	public static int[] getPrevCancellations() {
-		int[] c = new int [cancellations.size()];
-		for (int i = 0; i < cancellations.size(); i++) {
-			c[i] = cancellations.get(i);
-		}
-		return c;
-	}
-	
 	public static double getNoShowFactor() {
 		return noShowFactor;
-	}
-	
-	public static double getCancellationFactor() {
-		return cancellationFactor;
 	}
 }

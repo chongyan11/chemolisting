@@ -8,7 +8,5 @@ Number of Time Slots,23,,,,,,,,,,,,,,,,,,,,,,
 Manpower at each Time Slot,10,15,15,15,15,18,13,13,13,13,13,13,15,15,18,18,18,18,8,3,3,3,3
 Number of Chairs operating at each Time Slot,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,22,11,11,11
 Number of Booked Treatments Last Month,510,814,925,418,898,,,,,,,,,,,,,,,,,,
-Number of Cancellations Last Month,40,60,53,45,65,,,,,,,,,,,,,,,,,,
-Number of No-Shows Last Month,30,40,59,60,35,,,,,,,,,,,,,,,,,,
+Number of No-Shows Last Month,60,80,100,120,70,,,,,,,,,,,,,,,,,,
 No Show Factor,1,,,,,,,,,,,,,,,,,,,,,,
-Cancellation Factor,0.5,,,,,,,,,,,,,,,,,,,,,,

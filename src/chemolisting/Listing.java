@@ -17,9 +17,7 @@ public class Listing {
 	
 	private int[] prevBookings;
 	private int[] prevNoShows;
-	private int[] prevCancellations;
 	private double NOSHOWFACTOR;
-	private double CANCELLATIONFACTOR;
 	
 	private int[] subtotal;
 	
@@ -39,7 +37,6 @@ public class Listing {
 		MANPOWER_FACTOR = InputOutput.getMaxNurseRatio();
 		ALPHA = InputOutput.getAlpha();
 		NOSHOWFACTOR = InputOutput.getNoShowFactor();
-		CANCELLATIONFACTOR = InputOutput.getCancellationFactor();
 		
 		treatmentLength = InputOutput.getTreatmentLengths();
 		if (!(treatmentLength.length == NUM_TREATMENTS))
@@ -71,11 +68,6 @@ public class Listing {
 		prevNoShows = InputOutput.getPrevNoShows();
 		if (!(prevNoShows.length == NUM_TREATMENTS))
 			throw new ListingException("Number of treatments do not match (4)");
-		
-		prevCancellations = InputOutput.getPrevCancellations();
-		if (!(prevCancellations.length == NUM_TREATMENTS))
-			throw new ListingException("Number of treatments do not match (5)");
-		
 	}
 	
 	private int[][] model() {
@@ -259,7 +251,7 @@ public class Listing {
 		double[] reductionFactor = new double[NUM_TREATMENTS];
 		double[] ratios = new double[NUM_TREATMENTS];
 		for (int i = 0; i < NUM_TREATMENTS; i++) {
-			reductionFactor[i] = ((NOSHOWFACTOR * prevNoShows[i]) + (CANCELLATIONFACTOR * prevCancellations[i])) / prevBookings[i];
+			reductionFactor[i] = (NOSHOWFACTOR * prevNoShows[i]) / prevBookings[i];
 			ratios[i] = treatmentRatio[i] * (1 + reductionFactor[i]);
 		}
 		double sum = 0.0;
