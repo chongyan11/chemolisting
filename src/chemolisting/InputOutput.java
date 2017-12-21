@@ -21,11 +21,14 @@ public class InputOutput {
 	private static int maxChairs;
 	private static double maxNurseRatio;
 	private static int numSlots;
-	private static ArrayList<Integer> manpower = new ArrayList<Integer>();
+	private static ArrayList<Double> manpower = new ArrayList<Double>();
 	private static ArrayList<Integer> chairs = new ArrayList<Integer>();
 	private static ArrayList<Integer> noShow = new ArrayList<Integer>();
 	private static ArrayList<Integer> prevBookings = new ArrayList<Integer>();
 	private static double noShowFactor;
+	private static double startedCasesToNursesRatio;
+	private static double startingCasesToNursesRatio;
+	private static double maxCasesPerTimeSlot;
 	
 	public static void writeResults(int[][] allocation, int[] subtotal) { 
 		try {
@@ -144,7 +147,7 @@ public class InputOutput {
 			line = br.readLine();
 			string = line.split(SEPARATOR);
 			for (int i = 1; i < string.length; i++) {
-				int x = Integer.parseInt(string[i]);
+				Double x = Double.parseDouble(string[i]);
 				manpower.add(x);
 			}
 			
@@ -176,6 +179,21 @@ public class InputOutput {
 			line = br.readLine();
 			string = line.split(SEPARATOR, 3);
 			noShowFactor = Double.parseDouble(string[1]);
+			
+			// HARDCODE: 13th readline for Started Cases to Nurses Ratio
+			line = br.readLine();
+			string = line.split(SEPARATOR, 3);
+			startedCasesToNursesRatio = Double.parseDouble(string[1]);
+			
+			// HARDCODE: 14th readline for Starting Cases to Nurses Ratio
+			line = br.readLine();
+			string = line.split(SEPARATOR, 3);
+			startingCasesToNursesRatio = Double.parseDouble(string[1]);
+			
+			// HARDCODE: 15TH readline for Max Cases Per Time Slot
+			line = br.readLine();
+			string = line.split(SEPARATOR, 3);
+			maxCasesPerTimeSlot = Double.parseDouble(string[1]);
 			
 			br.close();
 		} catch (IOException e) {
@@ -219,8 +237,8 @@ public class InputOutput {
 		return numSlots;
 	}
 	
-	public static int[] getManpower() {
-		int[] mp = new int[manpower.size()];
+	public static double[] getManpower() {
+		double[] mp = new double[manpower.size()];
 		for (int i = 0; i < manpower.size(); i++) {
 			mp[i] = manpower.get(i);
 		}
@@ -253,5 +271,17 @@ public class InputOutput {
 	
 	public static double getNoShowFactor() {
 		return noShowFactor;
+	}
+	
+	public static double getMaxStartedCasesPerNurse() {
+		return startedCasesToNursesRatio;
+	}
+	
+	public static double getMaxStartingCasesPerNurse() {
+		return startingCasesToNursesRatio;
+	}
+	
+	public static double getMaxStartingCasesPerTimeSlot() {
+		return maxCasesPerTimeSlot;
 	}
 }

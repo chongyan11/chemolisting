@@ -7,12 +7,18 @@ public class Listing {
 	private int NUM_TREATMENTS;
 	private int NUM_SLOTS;
 	private int NUM_CHAIRS;
-	private double MANPOWER_FACTOR;
+	private double TOTAL_CASES_TO_NURSES_RATIO;
+	private double STARTED_CASES_TO_NURSES_RATIO;
+	private double STARTING_CASES_TO_NURSES_RATIO;
+	private double MAX_CASES_PER_SLOT;
 	private double ALPHA;
+	
+	// to set as input if necessary
+	private int CLOSING_TIME = 19;
 	
 	private int[] treatmentLength;
 	private double[] treatmentRatio;
-	private int[] manpower;
+	private double[] manpower;
 	private int[] maxChairs;
 	
 	private int[] prevBookings;
@@ -34,9 +40,12 @@ public class Listing {
 		NUM_TREATMENTS = InputOutput.getNumTreatments();
 		NUM_SLOTS = InputOutput.getNumSlots();
 		NUM_CHAIRS = InputOutput.getMaxChairs();
-		MANPOWER_FACTOR = InputOutput.getMaxNurseRatio();
+		TOTAL_CASES_TO_NURSES_RATIO = InputOutput.getMaxNurseRatio();
 		ALPHA = InputOutput.getAlpha();
 		NOSHOWFACTOR = InputOutput.getNoShowFactor();
+		STARTED_CASES_TO_NURSES_RATIO = InputOutput.getMaxStartedCasesPerNurse();
+		STARTING_CASES_TO_NURSES_RATIO = InputOutput.getMaxStartingCasesPerNurse();
+		MAX_CASES_PER_SLOT = InputOutput.getMaxStartingCasesPerTimeSlot();
 		
 		treatmentLength = InputOutput.getTreatmentLengths();
 		if (!(treatmentLength.length == NUM_TREATMENTS))
@@ -105,7 +114,6 @@ public class Listing {
 			cplex.addEq(checkTotal, totalTreatments);
 			
 			// Sum of each treatment type's cases started per chair must equal subtotalTreatments[k]
-
 			IloLinearNumExpr[] checkSubtotal = new IloLinearNumExpr[NUM_TREATMENTS];
 			for (int j = 0; j < NUM_TREATMENTS; j++) {
 				checkSubtotal[j] = cplex.linearNumExpr();
@@ -146,27 +154,42 @@ public class Listing {
 			}
 			
 			// No treatment can be scheduled to end after closing time
+			// No treatment can be scheduled to start after a certain time (PREFIXED TO BE 6.00pm)
 			for (int j = 0; j < NUM_TREATMENTS; j++) {
 				if (treatmentLength[j] > 1) {
 					for (int i = (NUM_SLOTS - treatmentLength[j]); i < NUM_SLOTS; i++) {
 						cplex.addEq(x[i][j], 0);
 					}
 				}
+				for (int i = CLOSING_TIME; i < NUM_SLOTS; i++) {
+					cplex.addEq(x[i][j], 0);
+				}
 			}
 			
 			// Chairs occupied cannot exceed total chairs, cannot exceed a certain manpower factor
-			// Number of treatments started cannot exceed manpower available at that time
+			// Number of treatments started cannot exceed manpower available at that time, cannot exceed a preset upper bound (to prevent pharmacy overload)
+			// Number of started cases per available nurse (not helping to start) must be less than a certain ratio
 			for (int i = 0; i < NUM_SLOTS; i++) {
 				IloLinearIntExpr sumChairs = cplex.linearIntExpr();
 				for (int j = 0; j < NUM_TREATMENTS; j++)
 					sumChairs.addTerm(1, y[i][j]);
 				cplex.addLe(sumChairs, (maxChairs[i]));
-				cplex.addLe(sumChairs, (MANPOWER_FACTOR * manpower[i]));
+				cplex.addLe(sumChairs, (TOTAL_CASES_TO_NURSES_RATIO * manpower[i]));
 				
 				IloLinearIntExpr sumStarts = cplex.linearIntExpr();
 				for (int j = 0; j < NUM_TREATMENTS; j++)
 					sumStarts.addTerm(1, x[i][j]);
-				cplex.addLe(sumStarts, manpower[i]);
+				cplex.addLe(sumStarts, (STARTING_CASES_TO_NURSES_RATIO * manpower[i]));
+				cplex.addLe(sumStarts, MAX_CASES_PER_SLOT);
+				
+				IloLinearIntExpr sumStarted = cplex.linearIntExpr();
+				for (int j = 0; j < NUM_TREATMENTS; j++) {
+					sumStarted.addTerm(1, y[i][j]);
+					sumStarted.addTerm(-1, x[i][j]);
+				}
+				IloNumExpr freeNurses = cplex.numVar(0, Double.MAX_VALUE);
+				freeNurses = cplex.sum(manpower[i], cplex.prod(-1, sumStarts));
+				cplex.addLe(sumStarted, cplex.prod(STARTED_CASES_TO_NURSES_RATIO, freeNurses));
 			}
 			
 		// ** Solving and printing **
