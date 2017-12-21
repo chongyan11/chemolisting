@@ -14,7 +14,8 @@ public class Listing {
 	private double ALPHA;
 	
 	// to set as input if necessary
-	private int CLOSING_TIME = 19;
+	private int CLOSING_TIME = 20;
+	private double FLUCTUATION_PENALTY_CONST = -0;
 	
 	private int[] treatmentLength;
 	private double[] treatmentRatio;
@@ -101,8 +102,14 @@ public class Listing {
 		// ** Objective Function **
 			IloLinearNumExpr objective = cplex.linearNumExpr();
 			for (int i = 0; i < NUM_SLOTS; i++)
-				for (int j = 0; j < NUM_TREATMENTS; j++)
+				for (int j = 0; j < NUM_TREATMENTS; j++) {
 					objective.addTerm(treatmentLength[j], x[i][j]);
+					if (i < (NUM_SLOTS - 1)) {
+						IloIntExpr fluctuation = cplex.linearIntExpr();
+						fluctuation = cplex.abs(cplex.sum(x[i+1][j], cplex.prod(-1, x[i][j])));
+						objective.addTerm(FLUCTUATION_PENALTY_CONST, (IloNumVar) fluctuation);
+					}
+				}
 			cplex.addMaximize(objective);
 			
 		// ** Constraints **
