@@ -2,7 +2,17 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/mailc/eclipse-workspace/chemolisting/cplex.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mailc/eclipse-workspace/chemolisting/jacob-1.18/jacob-1.18-x64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zami/Documents/Repo/Cplex/cplex.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zami/Documents/Repo/jacob-1.18/jacob.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/Zami/Documents/Repo/jacob-1.18"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Zami/Documents/Repo/poi-3.17/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zami/Documents/Repo/poi-3.17/ooxml-lib/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zami/Documents/Repo/dom4j-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zami/Documents/Repo/poi-3.17/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zami/Documents/Repo/poi-3.17/poi-ooxml-schemas-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zami/Documents/Repo/poi-3.17/lib/commons-collections4-4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
